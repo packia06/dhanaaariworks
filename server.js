@@ -9,15 +9,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Health check route
+app.get("/", (req, res) => {
+    res.send("Server is running!");
+});
+
+// DB connection
 mongoose.connect(process.env.MONGODB_URI)
 .then(()=> console.log("MongoDB Connected"))
 .catch(err=> console.log(err));
 
+// Main SalesIQ webhook route
 app.post("/api/visitor", async (req, res)=>{
     try{
+        console.log("Incoming:", req.body);
+
         const { name, email, phone, question, appointment } = req.body;
 
-        // Check appointment availability
+        // Appointment check
         if(appointment){
             const existing = await Visitor.findOne({ appointment });
             if(existing){
@@ -27,6 +36,7 @@ app.post("/api/visitor", async (req, res)=>{
 
         const visitor = new Visitor({ name, email, phone, question, appointment });
         await visitor.save();
+
         res.json({ success:true, message:"Details saved successfully" });
 
     } catch(err){
@@ -34,6 +44,8 @@ app.post("/api/visitor", async (req, res)=>{
     }
 });
 
-app.listen(process.env.PORT, ()=>{
-    console.log(`Server running on port ${process.env.PORT}`);
+// Port fix
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, ()=>{
+    console.log(`Server running on port ${PORT}`);
 });
