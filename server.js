@@ -65,7 +65,7 @@ app.post("/api/visitor", async (req, res) => {
     }
 });
 
-// Catch-all route for SPA / frontend routing
+// Catch-all route for SPA frontend
 app.get(/.*/, (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
